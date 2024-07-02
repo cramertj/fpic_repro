@@ -1,0 +1,24 @@
+load("@rules_go//go:def.bzl", "go_binary")
+load("@rules_go//proto:def.bzl", "go_grpc_library", "go_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+proto_library(
+    name = "protos",
+    srcs = ["target_runner.proto"],
+)
+
+go_grpc_library(
+    name = "go_protos",
+    importpath = "pigweed/proto/pw_target_runner/target_runner_pb",
+    proto = ":protos",
+)
+
+go_binary(
+    name = "server",
+    srcs = ["server.go"],
+    deps = [
+        ":go_protos",
+    ],
+)

@@ -19,10 +19,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "platforms",
-    sha256 = "5308fc1d8865406a49427ba24a9ab53087f17f5266a7aabbfc28823f3916e1ca",
+    sha256 = "8150406605389ececb6da07cbcb509d5637a3ab9a24bc69b1101531367d89d74",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/0.0.6/platforms-0.0.6.tar.gz",
-        "https://github.com/bazelbuild/platforms/releases/download/0.0.6/platforms-0.0.6.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/0.0.8/platforms-0.0.8.tar.gz",
+        "https://github.com/bazelbuild/platforms/releases/download/0.0.8/platforms-0.0.8.tar.gz",
     ],
 )
 
@@ -36,11 +36,9 @@ http_archive(
 
 http_archive(
     name = "rules_cc",
-    integrity = "sha256-NddP6xi6LzsIHT8bMSVJ2NtoURbN+l3xpjvmIgB6aSg=",
-    strip_prefix = "rules_cc-1acf5213b6170f1f0133e273cb85ede0e732048f",
-    urls = [
-        "https://github.com/bazelbuild/rules_cc/archive/1acf5213b6170f1f0133e273cb85ede0e732048f.zip",
-    ],
+    sha256 = "2037875b9a4456dce4a79d112a8ae885bbc4aad968e6587dca6e64f3a0900cdf",
+    strip_prefix = "rules_cc-0.0.9",
+    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
 )
 
 # needed by pigweed (it references @pw_toolchain)
@@ -67,31 +65,19 @@ register_pigweed_cxx_toolchains()
 
 
 http_archive(
-    name = "bazel_skylib",
-    sha256 = "aede1b60709ac12b3461ee0bb3fa097b58a86fbfdb88ef7e9f90424a69043167",
-    strip_prefix = "bazel-skylib-1.6.1",  # 2024-04-24
-    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/refs/tags/1.6.1.tar.gz"],
+    name = "bazel_skylib",  # 2022-09-01
+    sha256 = "4756ab3ec46d94d99e5ed685d2d24aece484015e45af303eb3a11cab3cdc2e71",
+    strip_prefix = "bazel-skylib-1.3.0",
+    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/refs/tags/1.3.0.zip"],
 )
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 bazel_skylib_workspace()
-
-# Get ready to grab CIPD dependencies. For this minimal example, the only
-# dependencies will be the toolchains and OpenOCD (used for flashing).
-load(
-    "@pigweed//pw_env_setup/bazel/cipd_setup:cipd_rules.bzl",
-    "cipd_client_repository",
-    "cipd_repository",
-)
-cipd_client_repository()
 
 git_repository(
     name = "io_bazel_rules_go",
     commit = "21005c4056de3283553c015c172001229ecbaca9",
     remote = "https://github.com/cramertj/rules_go.git",
 )
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-go_rules_dependencies()
-go_register_toolchains(version = "1.21.5")
 
 http_archive(
     name = "bazel_gazelle",
@@ -102,6 +88,13 @@ http_archive(
     ],
 )
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+
+go_rules_dependencies()
+
+go_register_toolchains(version = "1.21.5")
+
 gazelle_dependencies()
 
 load("@bazel_gazelle//:deps.bzl", "go_repository")
@@ -174,3 +167,12 @@ http_archive(
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
+
+# Get ready to grab CIPD dependencies. For this minimal example, the only
+# dependencies will be the toolchains and OpenOCD (used for flashing).
+load(
+    "@pigweed//pw_env_setup/bazel/cipd_setup:cipd_rules.bzl",
+    "cipd_client_repository",
+    "cipd_repository",
+)
+cipd_client_repository()

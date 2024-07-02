@@ -43,13 +43,6 @@ http_archive(
     ],
 )
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "aede1b60709ac12b3461ee0bb3fa097b58a86fbfdb88ef7e9f90424a69043167",
-    strip_prefix = "bazel-skylib-1.6.1",  # 2024-04-24
-    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/refs/tags/1.6.1.tar.gz"],
-)
-
 # needed by pigweed (it references @pw_toolchain)
 git_repository(
     name = "pw_toolchain",
@@ -72,6 +65,16 @@ git_repository(
 load("@pigweed//pw_toolchain:register_toolchains.bzl", "register_pigweed_cxx_toolchains")
 register_pigweed_cxx_toolchains()
 
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "aede1b60709ac12b3461ee0bb3fa097b58a86fbfdb88ef7e9f90424a69043167",
+    strip_prefix = "bazel-skylib-1.6.1",  # 2024-04-24
+    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/refs/tags/1.6.1.tar.gz"],
+)
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+bazel_skylib_workspace()
+
 # Get ready to grab CIPD dependencies. For this minimal example, the only
 # dependencies will be the toolchains and OpenOCD (used for flashing).
 load(
@@ -81,14 +84,14 @@ load(
 )
 cipd_client_repository()
 
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-bazel_skylib_workspace()
-
 git_repository(
     name = "io_bazel_rules_go",
     commit = "21005c4056de3283553c015c172001229ecbaca9",
     remote = "https://github.com/cramertj/rules_go.git",
 )
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+go_rules_dependencies()
+go_register_toolchains(version = "1.21.5")
 
 http_archive(
     name = "bazel_gazelle",
@@ -98,14 +101,9 @@ http_archive(
         "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.35.0/bazel-gazelle-v0.35.0.tar.gz",
     ],
 )
-
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-go_rules_dependencies()
-go_register_toolchains(version = "1.21.5")
-
 gazelle_dependencies()
+
 load("@bazel_gazelle//:deps.bzl", "go_repository")
 
 go_repository(
